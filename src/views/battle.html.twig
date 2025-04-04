@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Battle</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<link rel="icon" href="../../public/img/tailwindcss-mark.d52e9897.svg">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+	<style>
+		#confettiCanvas {
+			position: absolute;
+			z-index: 999;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+		}
+	</style>
+</head>
+
+<body>
+
+	{% include 'inc/nav.html.twig' %}
+
+	<canvas id="confettiCanvas"></canvas>
+
+	{% import _self as macros %}
+
+	<div class="max-h-screen flex gap-12 flex-wrap justify-evenly p-12 mt-12">
+		<a href="/battle" id="restart-button"
+			class="hidden relative z-5 bg-blue-500 transition-all ease-in hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline animate__animated animate__bounceInDown">
+			Restart
+		</a>
+
+
+		<div
+			class="relative w-full p-6 h-[200px] max-h-[300px] lg:h-[20vh] bg-gradient-to-br from-blue-600 to-blue-400 text-white font-mono rounded-xl shadow-lg overflow-y-auto border border-blue-300">
+			<p class="text-lg font-semibold mb-2 underline underline-offset-2">Console :</p>
+			<div id="console" class="w-full">
+				<p class="text-blue-200">> Initialisation du système...</p>
+			</div>
+		</div>
+
+		<div class="flex flex-col lg:flex-row text-center gap-24 items-top justify-evenly w-full">
+			{{ macros.fighter_section(combattant1, 1, 2, '🥊') }}
+
+			<div class="flex justify-center">
+				<p class="text-6xl text-red-500 font-extrabold animate__animated animate__wobble">VS</p>
+			</div>
+
+			{{ macros.fighter_section(combattant2, 2, 1, '🥋') }}
+		</div>
+	</div>
+
+	<script src='https://kit.fontawesome.com/61d24657b9.js' crossorigin='anonymous'></script>
+	<script src="../../public/app.js"></script>
+	<script src="../../public/animation.js"></script>
+	<script src="../../public/admin.js"></script>
+
+</body>
+
+</html>
+
+{% macro fighter_section(combattant, player, opponents, icon) %}
+<div id="p{{ player }}-section" class="flex flex-col gap-6 items-center md:px-24 flex-1">
+	<p id="p{{ player }}-name" class="text-4xl font-bold">{{ icon }}
+		{{ combattant.nom }}</p>
+	<div class="relative w-full bg-white p-2 rounded-lg shadow-md flex items-center">
+		<div class="relative w-full h-5 rounded-full bg-red-500 overflow-hidden">
+			<div id="sanity-pl-{{ player }}"
+				class="absolute top-0 left-0 h-full bg-green-500 rounded-full transition-all duration-500 ease-out"
+				style="width: {{ combattant.sante }}%;"></div>
+			<p id="sanity-text-pl-{{ player }}"
+				class="absolute inset-0 flex items-center justify-center text-white font-bold">
+				{{ combattant.sante }}%
+			</p>
+		</div>
+	</div>
+	<div class="w-full flex justify-evenly px-6 py-4 bg-black rounded-lg shadow-lg gap-4">
+
+		<button
+			class="relative w-14 h-14 rounded-md overflow-hidden bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+			data-player="{{ player }}" data-opponent="{{ opponents }}" data-abilities="medikit">
+			<div id="progress-ab" class="absolute inset-0 bg-red-500 z-10 transition-all ease-in" style="width: 0%;"></div>
+			<div class="absolute inset-0 flex items-center justify-center z-20 text-gray-300">
+				<i class="fa-solid fa-suitcase-medical"></i>
+			</div>
+		</button>
+
+		<button
+			class="relative w-14 h-14 rounded-md overflow-hidden bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+			data-player="{{ player }}" data-opponent="{{ opponents }}" data-abilities="poison">
+			<div id="progress-ab" class="absolute inset-0 bg-green-600 z-10 transition-all ease-in" style="width: 0%;"></div>
+			<div class="absolute inset-0 flex items-center justify-center z-20 text-gray-300">
+				<i class="fa-solid fa-skull-crossbones"></i>
+			</div>
+		</button>
+
+		<button 
+			class="relative w-14 h-14 rounded-md overflow-hidden bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+			data-player="{{ player }}" data-opponent="{{ opponents }}" data-abilities="skip">
+			<div id="progress-ab" class="absolute inset-0 bg-gray-500 z-10 transition-all ease-in" style="width: 0%;"></div>
+			<div class="absolute inset-0 flex items-center justify-center z-20 text-gray-300">
+				<i class="fa-solid fa-forward"></i>
+			</div>
+		</button>
+
+		<button
+			class="relative w-14 h-14 rounded-md overflow-hidden bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+			data-player="{{ player }}" data-opponent="{{ opponents }}" data-abilities="shield">
+			<div id="progress-ab" class="absolute inset-0 bg-blue-600 z-10 transition-all ease-in" style="width: 0%;"></div>
+			<div class="absolute inset-0 flex items-center justify-center z-20 text-gray-300">
+				<i class="fa-solid fa-shield-halved"></i>
+			</div>
+		</button>
+
+	</div>
+	<div class="mt-2 flex flex-wrap justify-center gap-2">
+		{% if combattant[0] is empty %}
+		<p class="text-xl block text-center">{{ combattant.nom }}
+			n'a pas envie de se battre...</p>
+		{% else %}
+		{% for ability in combattant[0] %}
+		{% set buttonClass = '' %}
+		{% if ability.note == 9 %}
+		{% set buttonClass = " bg-black hover:bg-white hover:text-black" %}
+		{% elseif ability.note > 7 %}
+		{% set buttonClass = "bg-red-500 hover:bg-red-700" %}
+		{% elseif ability.note > 6 %}
+		{% set buttonClass = "bg-purple-500 hover:bg-purple-700" %}
+		{% elseif ability.note > 1 %}
+		{% set buttonClass = "bg-blue-500 hover:bg-blue-700" %}
+		{% endif %}
+		{% if buttonClass != '' %}
+		<button
+			class="px-4 py-2 {{ buttonClass }} text-white font-bold rounded-lg shadow-lg transition duration-300 ease-in-out disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none"
+			value="{{ ability.note }}" data-player="{{ player }}" data-opponent="{{ opponents }}">
+			{{ ability.aptitude_name }}
+		</button>
+		{% endif %}
+		{% endfor %}
+		{% endif %}
+	</div>
+
+</div>
+{% endmacro %}

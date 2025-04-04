@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="../../public/img/tailwindcss-mark.d52e9897.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+</head>
+<body>
+
+{% include 'inc/nav.html.twig' %}
+
+<div class="h-screen flex flex-col gap-12 justify-center items-center">
+    <div class="text-6xl font-bold text-blue-600 flex items-end gap-3 animate__animated animate__backInLeft">
+        <h1>Welcome</h1>
+        <div class="flex space-x-1">
+            <span class="animate-bounce [animation-delay:100ms]">.</span>
+            <span class="animate-bounce [animation-delay:200ms]">.</span>
+            <span class="animate-bounce [animation-delay:300ms]">.</span>
+        </div>
+
+
+    </div>
+
+    <a href="/fighters" class="rounded-md bg-blue-700 py-2 px-4 border border-transparent text-center text-sm text-white transition-all duration-300 shadow-md hover:shadow-lg hover:bg-blue-800 active:shadow-none animate__animated animate__bounceInUp">
+        View all Fighters
+    </a>
+</div>
+
+</body>
+</html>

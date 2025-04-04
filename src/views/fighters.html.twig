@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Fighters</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="../../public/img/tailwindcss-mark.d52e9897.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+</head>
+<body>
+
+{% include 'inc/nav.html.twig' %}
+
+<div class="max-h-screen flex flex-wrap gap-12 justify-center items-center py-12">
+    {% for fighter in fighters %}
+        <div class="relative bg-white shadow-lg rounded-2xl p-6 w-80 text-center border border-blue-300">
+            <div class="absolute top-0 right-0 flex justify-center items-center h-16 w-16">
+                <img src="../../public/img/Experience_Orb.png" alt="Boule d'expérience de niveau {{ fighter.niveau }}">
+                <p class="absolute text-2xl font-bold">{{ fighter.niveau }}</p>
+            </div>
+            <h2 class="text-2xl font-bold text-blue-700">{{ fighter.nom }}</h2>
+            <p class="text-blue-600 mt-2">Force: <span class="font-semibold">{{ fighter.force }}</span></p>
+            <p class="text-blue-600">Santé: <span class="font-semibold">{{ fighter.sante }}</span></p>
+        </div>
+    {% endfor %}
+</div>
+
+
+</body>
+</html>
