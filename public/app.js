@@ -1,6 +1,12 @@
 let buttons = document.querySelectorAll('button');
 let battleConsole = document.querySelector('#console');
 let currentPlayer = Math.floor(Math.random() * 2) + 1;
+const dataAbilities = [
+    'medikit',
+    'poison',
+    'skip',
+    'shield'
+]
 
 function checkStrength(force) {
     if (force >= 8) {
@@ -34,24 +40,47 @@ function checkHealth(health) {
     }
 }
 
-function checkAbilitiesProgress(name, item, force) {
-    let initProgress = parseFloat(item.style.width);
-    let newWidht = 0;
+function checkAbilitiesProgress(name, item, force, el = null) {
+    let initProgress = 0;
+    let abilityName = name;
+    let progressItem = item;
 
-    if (name == 'medikit') {
-        newWidht = (parseFloat(checkStrength(force)) / 2) * 10;
-    } else if (name == 'poison') {
-        newWidht = (parseFloat(checkStrength(force)) / 3) * 10;
-    } else if (name == 'skip') {
-        newWidht = (parseFloat(checkStrength(force)) / 1.5) * 10;
-    } else if (name == 'shield') {
-        newWidht = (parseFloat(checkStrength(force)) / 4) * 10;
+    if (!abilityName || !progressItem) {
+        if (!el) return;
+
+        const random = Math.floor(Math.random() * 4);
+        abilityName = dataAbilities[random];
+
+        const items = el.querySelectorAll('#progress-ab');
+        if (!items[random]) return;
+
+        progressItem = items[random];
     }
 
-    newWidht = parseFloat(initProgress + newWidht);
-    newWidht = newWidht > 100 ? 100 : newWidht;
-    
-    item.style.width = `${newWidht}%`;
+    initProgress = parseFloat(progressItem.style.width) || 0;
+
+    let newWidth = 0;
+    const strength = parseFloat(checkStrength(force));
+
+    switch (abilityName) {
+        case 'medikit':
+            newWidth = (strength / 2) * 10;
+            break;
+        case 'poison':
+            newWidth = (strength / 3) * 10;
+            break;
+        case 'skip':
+            newWidth = (strength / 2) * 10;
+            break;
+        case 'shield':
+            newWidth = (strength / 4) * 10;
+            break;
+        default:
+            return;
+    }
+
+    newWidth = Math.min(initProgress + newWidth, 100);
+    progressItem.style.width = `${newWidth}%`;
 }
 
 function updateButtonStates() {
@@ -72,11 +101,20 @@ buttons.forEach((item) => {
         if (remainingTurns > 0) return;
 
         if (item.dataset.abilities) {
-            let progressBar = item.querySelector('#progress-ab');
-            checkAbilitiesProgress(item.dataset.abilities, progressBar, 9)
+            const progressBar = parseFloat(item.querySelector('#progress-ab').style.width);
+        
+            if (progressBar === 100) {
+                console.log(true);
+
+                // Next commit will have the next part of the code
+            } else {
+                return;
+            }
         }
+        
 
         let message = document.createElement('p');
+        let mainContainer = document.querySelector(`#p${item.dataset.player}-section`);
         let opponentPV = document.querySelector(`#sanity-pl-${item.dataset.opponent}`);
         let opponentPVText = document.querySelector(`#sanity-text-pl-${item.dataset.opponent}`);
         let initPV = parseFloat(opponentPV.style.width);
@@ -89,6 +127,7 @@ buttons.forEach((item) => {
         message.textContent = `> P${item.dataset.player} attaque ! PV restants P${item.dataset.opponent} : ${newPV}%`;
 
         item.dataset.disabled = checkStrength(parseInt(item.value));
+        checkAbilitiesProgress(null, null, 9, mainContainer);
 
         if (parseInt(item.dataset.disabled) > 0) {
             item.disabled = true;
