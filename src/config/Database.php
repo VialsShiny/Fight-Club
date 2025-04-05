@@ -11,7 +11,7 @@ abstract class Database
 
     public function __construct()
     {
-// Configuration de la base de données
+        // Configuration de la base de données
         $host = $_ENV['DB_HOST'];
         $dbname = $_ENV['DB_NAME'];
         $username = $_ENV['DB_USER'];
