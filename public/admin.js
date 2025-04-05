@@ -24,3 +24,21 @@ function Kill(killed) {
   setPlayerTurn();
   checkHealth(newPV);
 }
+
+function setAbilitiesProgress(player, abilitieName, progress) {
+  let buttons = document.querySelectorAll(`#p${player}-section button`);
+
+  buttons.forEach(button => {
+    if (button.dataset.abilities && button.dataset.abilities == abilitieName) {
+      button.querySelector('#progress-ab').style.width = `${progress}%`;
+    }
+  });
+}
+
+function setAllAbilities(player) {
+  let buttons = document.querySelectorAll(`#p${player}-section button`);
+
+  buttons.forEach(button => {
+    button.querySelector('#progress-ab').style.width = `100%`;
+  });
+}

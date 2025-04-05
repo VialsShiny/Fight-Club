@@ -8,6 +8,37 @@ const dataAbilities = [
     'shield'
 ]
 
+function consoleMessage(classes, text) {
+    let message = document.createElement('p');
+
+    if (Array.isArray(classes)) {
+        message.classList.add(...classes);
+    } else {
+        message.classList.add(classes);
+    }
+
+    message.textContent = `> ${text}`;
+    battleConsole.prepend(message);
+}
+
+
+function skip() {
+    let opponent = currentPlayer === 1 ? 2 : 1;
+    const mainContainer = document.querySelector(`#p${opponent}-section`);
+
+    if (mainContainer.dataset.skip) {
+        mainContainer.dataset.skip--;
+
+        setPlayerTurn();
+
+        if (mainContainer.dataset.skip <= 0) {
+            delete mainContainer.dataset.skip;
+            setPlayerTurn();
+        }
+    }
+}
+
+
 function checkStrength(force) {
     if (force >= 8) {
         return 9;
@@ -34,6 +65,8 @@ function checkHealth(health) {
             item.disabled = true;
         });
         PlayConfetti();
+        consoleMessage(['text-red-400', 'font-bold'], `${playerName.textContent} a perdu le combat...`);
+        consoleMessage(['text-green-400', 'font-bold'], `${winnerName.textContent} a gagné le combat !`);
         setTimeout(() => {
             restartButton.classList.remove('hidden');
         }, 3000);
@@ -64,16 +97,16 @@ function checkAbilitiesProgress(name, item, force, el = null) {
 
     switch (abilityName) {
         case 'medikit':
-            newWidth = (strength / 2) * 10;
-            break;
-        case 'poison':
             newWidth = (strength / 3) * 10;
             break;
+        case 'poison':
+            newWidth = (strength / 4) * 10;
+            break;
         case 'skip':
-            newWidth = (strength / 2) * 10;
+            newWidth = (strength / 3) * 10;
             break;
         case 'shield':
-            newWidth = (strength / 4) * 10;
+            newWidth = (strength / 2) * 10;
             break;
         default:
             return;
@@ -100,46 +133,102 @@ buttons.forEach((item) => {
         let remainingTurns = parseInt(item.dataset.disabled) || 0;
         if (remainingTurns > 0) return;
 
-        if (item.dataset.abilities) {
-            const progressBar = parseFloat(item.querySelector('#progress-ab').style.width);
-        
-            if (progressBar === 100) {
-                console.log(true);
-
-                // Next commit will have the next part of the code
-            } else {
-                return;
-            }
-        }
-        
-
-        let message = document.createElement('p');
-        let mainContainer = document.querySelector(`#p${item.dataset.player}-section`);
+        let mainContainerPlayer = document.querySelector(`#p${item.dataset.player}-section`);
+        let mainContainerOpponent = document.querySelector(`#p${item.dataset.opponent}-section`);
         let opponentPV = document.querySelector(`#sanity-pl-${item.dataset.opponent}`);
         let opponentPVText = document.querySelector(`#sanity-text-pl-${item.dataset.opponent}`);
         let initPV = parseFloat(opponentPV.style.width);
         let newPV = Math.max(initPV - parseInt(item.value), 0);
 
+        if (item.dataset.abilities) {
+            const progressBar = parseFloat(item.querySelector('#progress-ab').style.width);
+
+            if (progressBar === 100) {
+                setAbilitiesEffect(item.dataset.abilities, item, mainContainerPlayer);
+                updateButtonStates();
+                setPlayerTurn();
+                checkHealth(newPV);
+                return;
+            } else {
+                return;
+            }
+        }
+
+        if (mainContainerOpponent.dataset.shield) {
+            newPV = initPV;
+            delete mainContainerOpponent.dataset.shield;
+        }
+
         opponentPVText.textContent = `${newPV}%`;
         opponentPV.style.width = `${newPV}%`;
 
-        message.classList.add('text-blue-200');
-        message.textContent = `> P${item.dataset.player} attaque ! PV restants P${item.dataset.opponent} : ${newPV}%`;
+        consoleMessage('text-blue-200', `⚔️ P${item.dataset.player} charge en attaquant avec ${item.textContent} ! 💥`);
+
 
         item.dataset.disabled = checkStrength(parseInt(item.value));
-        checkAbilitiesProgress(null, null, 9, mainContainer);
+        item.dataset.abilities ?? checkAbilitiesProgress(null, null, 9, mainContainerPlayer);
 
         if (parseInt(item.dataset.disabled) > 0) {
             item.disabled = true;
         }
 
-        battleConsole.prepend(message);
 
         updateButtonStates();
         setPlayerTurn();
         checkHealth(newPV);
     });
 });
+
+function setAbilitiesEffect(name, item, mainContainer) {
+    let abilityName = name;
+    let opponent = currentPlayer === 1 ? 2 : 1;
+    let playerPV = document.querySelector(`#sanity-pl-${currentPlayer}`);
+    let playerPVText = document.querySelector(`#sanity-text-pl-${currentPlayer}`);
+    let opponentPV = document.querySelector(`#sanity-pl-${opponent}`);
+    let opponentPVText = document.querySelector(`#sanity-text-pl-${opponent}`);
+    const progressBar = item.querySelector('#progress-ab');
+
+    switch (abilityName) {
+        case 'medikit':
+            initPV = parseFloat(opponentPV.style.width);
+            newPV = initPV + 30;
+
+            playerPVText.textContent = `${newPV}%`;
+            playerPV.style.width = `${newPV}%`;
+
+            consoleMessage(['text-red-300', 'font-bold'], `💊 P${item.dataset.player} utilise Medikit et se soigne de 30 PV !`);
+            break;
+
+        case 'poison':
+            initPV = parseFloat(opponentPV.style.width);
+            newPV = Math.max(initPV - 15, 0);
+
+            opponentPVText.textContent = `${newPV}%`;
+            opponentPV.style.width = `${newPV}%`;
+
+            consoleMessage(['text-purple-500', 'font-bold'], `☠️ P${item.dataset.player} empoisonne l'adversaire, infligeant 15 PV de dégâts !`);
+            break;
+
+        case 'skip':
+            mainContainer.dataset.skip = 3;
+
+            consoleMessage(['text-yellow-400', 'font-bold'], `⏳ P${item.dataset.player} utilise "Skip", l'adversaire saute son prochain tour !`);
+            break;
+
+        case 'shield':
+            mainContainer.dataset.skip = 2;
+            mainContainer.dataset.shield = true;
+
+            consoleMessage(['text-white', 'font-bold'], `🛡️ P${item.dataset.player} active un bouclier, il est protégé pour 1 tours !`);
+            break;
+
+        default:
+            return;
+    }
+
+
+    progressBar.style.width = '0%';
+}
 
 function setPlayerTurn() {
     let opponent = currentPlayer === 1 ? 2 : 1;
@@ -156,6 +245,7 @@ function setPlayerTurn() {
     });
 
     currentPlayer = opponent;
+    skip();
 }
 
 setPlayerTurn();
