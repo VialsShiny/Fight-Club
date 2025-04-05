@@ -21,7 +21,6 @@ function consoleMessage(classes, text) {
     battleConsole.prepend(message);
 }
 
-
 function skip() {
     let opponent = currentPlayer === 1 ? 2 : 1;
     const mainContainer = document.querySelector(`#p${opponent}-section`);
@@ -64,7 +63,7 @@ function checkHealth(health) {
         buttons.forEach(item => {
             item.disabled = true;
         });
-        PlayConfetti();
+        performAction("winner");
         consoleMessage(['text-red-400', 'font-bold'], `${playerName.textContent} a perdu le combat...`);
         consoleMessage(['text-green-400', 'font-bold'], `${winnerName.textContent} a gagné le combat !`);
         setTimeout(() => {
@@ -197,6 +196,7 @@ function setAbilitiesEffect(name, item, mainContainer) {
             playerPV.style.width = `${newPV}%`;
 
             consoleMessage(['text-red-300', 'font-bold'], `💊 P${item.dataset.player} utilise Medikit et se soigne de 30 PV !`);
+            performAction('medikit');
             break;
 
         case 'poison':
@@ -206,13 +206,15 @@ function setAbilitiesEffect(name, item, mainContainer) {
             opponentPVText.textContent = `${newPV}%`;
             opponentPV.style.width = `${newPV}%`;
 
-            consoleMessage(['text-purple-500', 'font-bold'], `☠️ P${item.dataset.player} empoisonne l'adversaire, infligeant 15 PV de dégâts !`);
+            consoleMessage(['text-green-400', 'font-bold'], `☠️ P${item.dataset.player} empoisonne l'adversaire, infligeant 15 PV de dégâts !`);
+            performAction('poison');
             break;
 
         case 'skip':
             mainContainer.dataset.skip = 3;
 
             consoleMessage(['text-yellow-400', 'font-bold'], `⏳ P${item.dataset.player} utilise "Skip", l'adversaire saute son prochain tour !`);
+            performAction('skip');
             break;
 
         case 'shield':
@@ -220,6 +222,7 @@ function setAbilitiesEffect(name, item, mainContainer) {
             mainContainer.dataset.shield = true;
 
             consoleMessage(['text-white', 'font-bold'], `🛡️ P${item.dataset.player} active un bouclier, il est protégé pour 1 tours !`);
+            performAction('shield');
             break;
 
         default:
