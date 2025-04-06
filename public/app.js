@@ -90,26 +90,29 @@ function checkAbilitiesProgress(name, item, force, el = null) {
     }
 
     initProgress = parseFloat(progressItem.style.width) || 0;
+    if (initProgress === 100) return false;
 
     let newWidth = 0;
     const strength = parseFloat(checkStrength(force));
 
     switch (abilityName) {
         case 'medikit':
-            newWidth = (strength / 3) * 10;
+            newWidth = Math.round(strength * 3.5 / 10) * 10;
             break;
         case 'poison':
-            newWidth = (strength / 4) * 10;
+            newWidth = Math.round(strength * 3 / 10) * 10;
             break;
         case 'skip':
-            newWidth = (strength / 3) * 10;
+            newWidth = Math.round(strength * 5 / 10) * 10;
             break;
         case 'shield':
-            newWidth = (strength / 2) * 10;
+            newWidth = Math.round(strength * 4 / 10) * 10;
             break;
         default:
             return;
     }
+
+
 
     newWidth = Math.min(initProgress + newWidth, 100);
     progressItem.style.width = `${newWidth}%`;
@@ -146,7 +149,9 @@ buttons.forEach((item) => {
                 setAbilitiesEffect(item.dataset.abilities, item, mainContainerPlayer);
                 updateButtonStates();
                 setPlayerTurn();
-                checkHealth(newPV);
+
+                let opponentNewPV = parseFloat(document.querySelector(`#sanity-pl-${item.dataset.opponent}`).style.width);
+                checkHealth(opponentNewPV);
                 return;
             } else {
                 return;
@@ -165,7 +170,10 @@ buttons.forEach((item) => {
 
 
         item.dataset.disabled = checkStrength(parseInt(item.value));
-        item.dataset.abilities ?? checkAbilitiesProgress(null, null, 9, mainContainerPlayer);
+        let notFull = false;
+        while (notFull == false) {
+            notFull = item.dataset.abilities ?? checkAbilitiesProgress(null, null, 9, mainContainerPlayer);
+        }
 
         if (parseInt(item.dataset.disabled) > 0) {
             item.disabled = true;
@@ -189,7 +197,7 @@ function setAbilitiesEffect(name, item, mainContainer) {
 
     switch (abilityName) {
         case 'medikit':
-            initPV = parseFloat(opponentPV.style.width);
+            initPV = parseFloat(playerPV.style.width);
             newPV = initPV + 30;
 
             playerPVText.textContent = `${newPV}%`;
@@ -228,7 +236,6 @@ function setAbilitiesEffect(name, item, mainContainer) {
         default:
             return;
     }
-
 
     progressBar.style.width = '0%';
 }

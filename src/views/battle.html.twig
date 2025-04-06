@@ -105,7 +105,7 @@
 			{% else %}
 				{% for ability in combattant[0] %}
 					{% set buttonClass = '' %}
-					{% if ability.note == 9 %}
+					{% if ability.note >= 9 %}
 						{% set buttonClass = " bg-black hover:bg-white hover:text-black" %}
 					{% elseif ability.note > 7 %}
 						{% set buttonClass = "bg-red-500 hover:bg-red-700" %}
