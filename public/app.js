@@ -94,19 +94,20 @@ function checkAbilitiesProgress(name, item, force, el = null) {
 
     let newWidth = 0;
     const strength = parseFloat(checkStrength(force));
+    console.log(force);
 
     switch (abilityName) {
         case 'medikit':
-            newWidth = Math.round(strength * 3.5 / 10) * 10;
+            newWidth = Math.round(strength * 2.5 / 10) * 10;
             break;
         case 'poison':
-            newWidth = Math.round(strength * 3 / 10) * 10;
+            newWidth = Math.round(strength * 4 / 9) * 10;
             break;
         case 'skip':
-            newWidth = Math.round(strength * 5 / 10) * 10;
+            newWidth = Math.round(strength * 3 / 7) * 10;
             break;
         case 'shield':
-            newWidth = Math.round(strength * 4 / 10) * 10;
+            newWidth = Math.round(strength * 4 / 11) * 10;
             break;
         default:
             return;
@@ -168,11 +169,10 @@ buttons.forEach((item) => {
 
         consoleMessage('text-blue-200', `⚔️ P${item.dataset.player} charge en attaquant avec ${item.textContent} ! 💥`);
 
-
         item.dataset.disabled = checkStrength(parseInt(item.value));
         let notFull = false;
         while (notFull == false) {
-            notFull = item.dataset.abilities ?? checkAbilitiesProgress(null, null, 9, mainContainerPlayer);
+            notFull = item.dataset.abilities ?? checkAbilitiesProgress(null, null, parseFloat(item.value, 1), mainContainerPlayer);
         }
 
         if (parseInt(item.dataset.disabled) > 0) {
